@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import GUI from "lil-gui";
 
 /**
@@ -123,6 +124,26 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+// Model
+const gltfLoader = new GLTFLoader();
+
+let model = null;
+
+gltfLoader.load("./models/Duck/glTF-Binary/Duck.glb", gltf => {
+  model = gltf.scene;
+  model.scene.position.y = -1.2;
+  scene.add(model.scene);
+});
+
+// Lights
+const ambientLight = new THREE.AmbientLight("#ffffff", 0.9);
+scene.add(ambientLight);
+
+// Directional light
+const directionalLight = new THREE.DirectionalLight("#ffffff", 2.1);
+directionalLight.position.set(1, 2, 3);
+scene.add(directionalLight);
+
 /**
  * Animate
  */
@@ -163,6 +184,12 @@ const tick = () => {
     }
 
     currentInterect = null;
+  }
+
+  // Test intersect with model
+  if (model) {
+    const modelIntersects = raycaster.intersectObject(model.scene);
+    console.log(modelIntersects);
   }
 
   // Update controls
