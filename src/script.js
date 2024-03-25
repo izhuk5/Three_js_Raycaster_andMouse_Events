@@ -65,6 +65,38 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
+// Mouse
+const mouse = new THREE.Vector2();
+
+window.addEventListener("mousemove", event => {
+  mouse.x = (event.clientX / sizes.width) * 2 - 1;
+  mouse.y = -(event.clientY / sizes.height) * 2 + 1;
+});
+
+window.addEventListener("click", () => {
+  if (currentInterect) {
+    switch (currentInterect.object) {
+      case object1:
+        console.log("click on object 1");
+        break;
+      case object2:
+        console.log("click on object 2");
+        break;
+      case object3:
+        console.log("click on object 3");
+        break;
+    }
+
+    // if (currentInterect.object === object1) {
+    //   console.log("click on object1");
+    // } else if (currentInterect.object === object2) {
+    //   console.log("click on object2");
+    // } else if (currentInterect.object === object3) {
+    //   console.log("click on object3");
+    // }
+  }
+});
+
 /**
  * Camera
  */
@@ -96,6 +128,8 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  */
 const clock = new THREE.Clock();
 
+let currentInterect = null;
+
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
@@ -105,11 +139,7 @@ const tick = () => {
   object3.position.y = Math.sin(elapsedTime * 1.4) * 1.5;
 
   // Cast a ray
-  const rayOrigin = new THREE.Vector3(-3, 0, 0);
-  const rayDirection = new THREE.Vector3(1, 0, 0);
-  rayDirection.normalize();
-
-  raycaster.set(rayOrigin, rayDirection);
+  raycaster.setFromCamera(mouse, camera);
 
   const objectsToTest = [object1, object2, object3];
   const intersects = raycaster.intersectObjects(objectsToTest);
@@ -120,6 +150,19 @@ const tick = () => {
 
   for (const intersect of intersects) {
     intersect.object.material.color.set("#0000ff");
+  }
+
+  if (intersects.length) {
+    if (currentInterect === null) {
+      console.log("mouse enter");
+    }
+    currentInterect = intersects[0];
+  } else {
+    if (currentInterect) {
+      console.log("mouse leave");
+    }
+
+    currentInterect = null;
   }
 
   // Update controls
